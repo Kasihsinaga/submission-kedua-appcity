@@ -1,0 +1,38 @@
+{
+  "name": "CityCare App",
+  "short_name": "CityCare",
+  "description": "Aplikasi pelaporan dan informasi masyarakat berbasis PWA",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#69bdea",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./screenshots/home.png",
+      "sizes": "1080x1920",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Lapor Cepat",
+      "short_name": "Lapor",
+      "description": "Buat laporan baru",
+      "url": "/#/report",
+      "icons": [{ "src": "./icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}
