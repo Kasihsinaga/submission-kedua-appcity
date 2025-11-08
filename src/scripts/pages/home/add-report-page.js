@@ -7,7 +7,7 @@ export default class AddReportPage {
   async render() {
     return `
       <section class="container">
-        <h4>Tambah Laporan</h4>
+        <h1>Tambah Laporan</h1>
         <form id="reportForm" style="display:flex; flex-direction:column; gap:10px;">
          
           <div class="form-control">
@@ -51,8 +51,7 @@ export default class AddReportPage {
               <button type="button" id="closeCameraBtn" style="display:none;">❌ Tutup Kamera</button>
             </div>
  
-            <label>Pilih Gambar</label>
-            <input type="file" id="imageInput" accept="image/*" style="margin-top:10px;"/>
+            <input type="file" id="imageInput" accept="image/*" style="margin-top:10px;" />
           </div>
  
           <button type="submit" style="margin-top:10px;">Simpan Laporan</button>

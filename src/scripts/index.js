@@ -1,23 +1,32 @@
 import '../styles/styles.css';
 import App from './pages/app';
 import mapLogo from '../public/images/map.png';
-import { getAccessToken } from './utils/auth'; 
+import { getAccessToken } from './utils/auth'; // Impor getAccessToken
 import { registerServiceWorker } from './utils';
+// Hapus impor 'registerHelperSW' yang ganda
+// import { registerServiceWorker as registerHelperSW } from './utils'; 
 
 let deferredPrompt = null;
 
+// Inisialisasi App di scope atas
 const app = new App({
   content: document.querySelector('#main-content'),
   drawerButton: document.querySelector('#drawer-button'),
   navigationDrawer: document.querySelector('#navigation-drawer'),
 });
 
+/**
+ * Fungsi navigasi utama.
+ * Mengandung logika transisi DAN logika penjaga (guard).
+ */
 const handleNavigation = async () => {
   const token = getAccessToken();
   let path = window.location.hash;
 
+  // Normalisasi path jika kosong
   if (path === '') path = '#/';
 
+  // === LOGIKA PENJAGA (GUARD CLAUSE) ===
   const protectedRoutes = ['#/home', '#/favorites', '#/add-report', '#/reports/:id'];
   const authRoutes = ['#/login', '#/register'];
   const rootPath = '#/';
@@ -26,21 +35,31 @@ const handleNavigation = async () => {
   const targetRoute = path.startsWith('#/reports/') ? '#/reports/:id' : path;
 
   if (token) {
+    // --- KASUS: PENGGUNA SUDAH LOGIN ---
     if (authRoutes.includes(targetRoute)) {
-      window.location.hash = '#/home'; 
-      return; 
+      // 1. Jika sudah login tapi mencoba ke /login atau /register
+      window.location.hash = '#/home'; // Paksa ke beranda
+      return; // Hentikan eksekusi, hashchange akan memicu fungsi ini lagi
     }
     if (targetRoute === rootPath) {
-      window.location.hash = '#/home'; 
-      return; 
+      // 2. Jika sudah login dan mengklik logo (ke root '#/')
+      window.location.hash = '#/home'; // Arahkan ke beranda
+      return; // Hentikan eksekusi
     }
   } else {
+    // --- KASUS: PENGGUNA BELUM LOGIN ---
+    // 3. Jika belum login dan mencoba ke rute yang dilindungi
     if (protectedRoutes.includes(targetRoute) || targetRoute === rootPath) {
-      window.location.hash = '#/login'; 
-      return; 
+      window.location.hash = '#/login'; // Paksa ke login
+      return; // Hentikan eksekusi
     }
   }
+  // === AKHIR LOGIKA PENJAGA ===
+  // Catatan: Jika pengguna belum login dan tujuannya adalah #/login atau #/register,
+  // mereka akan lolos dari penjaga dan merender halaman tersebut. Ini sudah benar.
 
+
+  // Jika lolos semua penjaga, lanjutkan render halaman
   const mainContent = document.querySelector('#main-content');
   if (mainContent) {
     mainContent.classList.remove('fade-in');
@@ -48,7 +67,7 @@ const handleNavigation = async () => {
     await new Promise((r) => setTimeout(r, 400));
   }
 
-  await app.renderPage(); 
+  await app.renderPage(); // 'renderPage' akan merender hash yang valid
 
   if (mainContent) {
     mainContent.classList.remove('fade-out');
@@ -101,4 +120,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Tambahkan listener HANYA untuk handleNavigation
   window.addEventListener('hashchange', handleNavigation);
+
+  // Hapus listener ganda yang mungkin masih ada di kode Anda
+  // window.addEventListener('hashchange', async () => {
+  //   await app.renderPage();
+  // });
 });

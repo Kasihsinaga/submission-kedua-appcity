@@ -33,9 +33,10 @@ class App {
   }
 
   async renderPage() {
-    const url = getActiveRoute(); 
+    const url = getActiveRoute(); // contoh hasil: '/reports/123'
     let page = routes[url];
 
+    // Jika rute tidak cocok secara langsung, cek apakah itu rute dinamis
     if (!page) {
       const matchedRouteKey = Object.keys(routes).find((routeKey) => {
         if (routeKey.includes(':')) {

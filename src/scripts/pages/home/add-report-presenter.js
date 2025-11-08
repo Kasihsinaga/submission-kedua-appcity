@@ -12,7 +12,7 @@ export default class AddReportPresenter {
   }
 
   initMap() {
-    this.#map = L.map('map').setView([3.5952, 98.6722], 13); 
+    this.#map = L.map('map').setView([3.5952, 98.6722], 13); // Default: Medan
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(this.#map);
@@ -112,9 +112,9 @@ export default class AddReportPresenter {
   #showLocalNotification(title, description) {
     // 1. Dapatkan token pengguna saat ini
     const token = getAccessToken();
-    if (!token) return; 
+    if (!token) return; // Jika tidak login, jangan tampilkan
 
-    // 2. Cek status 'subscribe' dari localStorage 
+    // 2. Cek status 'subscribe' dari localStorage (yang diatur home-presenter)
     const subscribedUsers = JSON.parse(localStorage.getItem('subscribedUsers')) || [];
     const isSubscribed = subscribedUsers.includes(token);
 
@@ -123,10 +123,10 @@ export default class AddReportPresenter {
       try {
         const options = {
           body: description,
-          icon: '/images/map.png', 
+          icon: '/images/map.png', // <-- Ganti ke path yang valid
           tag: 'laporan-sukses',
         };
-        new Notification(title, options); 
+        new Notification(title, options); // 'new Notification' adalah Notifikasi Lokal
       } catch (e) {
         console.warn('Gagal menampilkan Notifikasi Lokal:', e);
       }

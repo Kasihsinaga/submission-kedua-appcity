@@ -1,5 +1,6 @@
 const CACHE_NAME = 'citycare-cache-v1';
 const PRECACHE_URLS = [
+
 ];
 
 self.addEventListener('install', (event) => {
