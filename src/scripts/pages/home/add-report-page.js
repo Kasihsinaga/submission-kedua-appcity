@@ -51,7 +51,8 @@ export default class AddReportPage {
               <button type="button" id="closeCameraBtn" style="display:none;">❌ Tutup Kamera</button>
             </div>
  
-            <input type="file" id="imageInput" accept="image/*" style="margin-top:10px;" />
+            <label>Pilih Gambar</label>
+            <input type="file" id="imageInput" accept="image/*" style="margin-top:10px;"/>
           </div>
  
           <button type="submit" style="margin-top:10px;">Simpan Laporan</button>
