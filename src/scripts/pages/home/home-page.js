@@ -17,7 +17,9 @@ export default class HomePage {
         <h2 style="margin-top:20px">Daftar Laporan</h2>
         
         <div class="search-container" style="margin-bottom: 15px;">
-          <input type="search" id="searchBar" placeholder="Cari laporan berdasarkan nama atau deskripsi..." 
+        <label>Cari Laporan</label>
+          <input type="search" id="searchBar" alt="cari"
+          placeholder="Cari laporan berdasarkan nama atau deskripsi..." 
                  style="width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px;">
         </div>
         <div id="reportList"></div>
@@ -279,7 +281,7 @@ export default class HomePage {
           <div class="
           " style="border: 1px solid #ddd; margin: 10px; padding: 10px;">
             <h3>${r.title}</h3>
-            <img src="${r.image}" width="200" />
+            <img src="${r.image}" width="200" alt="${r.title}"/>
             <p>${r.description}</p>
             <button class="detail-btn" data-id="${r.id}">Selengkapnya</button>
           </div>
