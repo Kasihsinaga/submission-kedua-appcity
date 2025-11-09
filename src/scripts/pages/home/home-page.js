@@ -129,8 +129,8 @@ export default class HomePage {
     reportList.innerHTML = stories
       .slice(0, 20)
       .map((s) => {
-        const isLiked = favoriteStoryIds.has(s.id); // Cek apakah story di-like
-        const likeButtonColor = isLiked ? '#dc3545' : '#aaaaaa'; // Merah jika di-like, abu-abu jika tidak
+        const isLiked = favoriteStoryIds.has(s.id); 
+        const likeButtonColor = isLiked ? '#dc3545' : '#aaaaaa'; 
 
         return `
           <div class="report-card" style="view-transition-name: card-${s.id};">
@@ -174,7 +174,6 @@ export default class HomePage {
       })
       .join('');
 
-    // 💡 Tambahkan style grid agar daftar rapi
     const style = document.createElement('style');
     style.textContent = `
     #reportList {
@@ -208,7 +207,6 @@ export default class HomePage {
   `;
     document.head.appendChild(style);
 
-    // 🗺️ Tambahkan marker acak di peta (sementara)
     stories.slice(0, 10).forEach((story) => {
       const lat = -6.2 + Math.random();
       const lng = 106.8 + Math.random();
@@ -244,7 +242,7 @@ export default class HomePage {
       if (!likeButton) return;
 
       const id = likeButton.dataset.id;
-      const isCurrentlyLiked = likeButton.style.color.includes('rgb(220, 53, 69)'); // Cek warna merah
+      const isCurrentlyLiked = likeButton.style.color.includes('rgb(220, 53, 69)'); 
 
       // Tampilkan loading
       likeButton.disabled = true;
@@ -255,10 +253,10 @@ export default class HomePage {
 
         // Update UI tombol
         if (newLikedStatus) {
-          likeButton.style.color = '#dc3545'; // Merah
+          likeButton.style.color = '#dc3545'; 
           likeButton.setAttribute('aria-label', 'Unlike this story');
         } else {
-          likeButton.style.color = '#aaaaaa'; // Abu-abu
+          likeButton.style.color = '#aaaaaa';
           likeButton.setAttribute('aria-label', 'Like this story');
         }
       } catch (error) {

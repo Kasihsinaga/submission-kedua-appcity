@@ -35,7 +35,6 @@ export default class LoginPage {
   }
 
   async afterRender() {
-    // Inisialisasi presenter
     
     // Inisialisasi presenter (hanya jika tidak ada token)
     this.#presenter = new LoginPresenter({
