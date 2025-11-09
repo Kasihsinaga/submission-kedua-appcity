@@ -7,11 +7,7 @@
   "theme_color": "#69bdea",
   "icons": [
     {
-<<<<<<< HEAD
-      "src": "/images/map.png", 
-=======
       "src": "images/map.png", 
->>>>>>> d79ece6 (Simpan Perubahan)
       "sizes": "512x512",
       "type": "image/png"
     }
@@ -20,13 +16,8 @@
   "shortcuts": [
     {
       "name": "Tambah Laporan",
-<<<<<<< HEAD
-      "url": "/#/add-report",
-      "icons": [{"src": "/images/map.png","sizes":"512x512"}] 
-=======
       "url": "index.html#/add-report",
       "icons": [{"src": "images/map.png","sizes":"512x512"}] 
->>>>>>> d79ece6 (Simpan Perubahan)
     }
   ]
 }
