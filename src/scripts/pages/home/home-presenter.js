@@ -9,9 +9,15 @@ export default class HomePresenter {
   #model;
   #authModel;
   #utils;
+<<<<<<< HEAD
   #allStories = []; 
   #map = null;
   #favoriteStoryIds = new Set(); 
+=======
+  #allStories = [];
+  #map = null;
+  #favoriteStoryIds = new Set();
+>>>>>>> d79ece6 (Simpan Perubahan)
 
   constructor({ view, model, authModel, utils }) {
     this.#view = view;
@@ -23,27 +29,42 @@ export default class HomePresenter {
   async init() {
     const token = this.#authModel.getAccessToken();
     if (!token) {
+<<<<<<< HEAD
       
       
+=======
+
+
+>>>>>>> d79ece6 (Simpan Perubahan)
     }
 
     this.#view.showLogoutButton(true);
     this.#addSubscribeButton(); // Tombol toggle notifikasi
 
-    this.#map = this.#view.renderMap(); 
+    this.#map = this.#view.renderMap();
     this.#view.renderCityMarkers(this.#map);
     this.#view.renderClickPopup(this.#map);
 
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> d79ece6 (Simpan Perubahan)
     await this.#loadFavoriteIds();
 
     await this.#loadStories(this.#map);
     this.#loadLocalReports(this.#map);
 
     this.#setupDetailNavigation();
+<<<<<<< HEAD
     this.#setupSearchListener(); 
 
     
+=======
+    this.#setupSearchListener();
+
+
+>>>>>>> d79ece6 (Simpan Perubahan)
     this.#view.setupLikeButtonListener(this.#handleLikeToggle.bind(this));
   }
 
@@ -68,11 +89,15 @@ export default class HomePresenter {
         stories = result.listStory;
       }
 
-      this.#allStories = stories; 
+      this.#allStories = stories;
 
 
       // Kirim ID favorit ke view saat merender
+<<<<<<< HEAD
       this.#view.renderStories(map, this.#allStories, this.#favoriteStoryIds); 
+=======
+      this.#view.renderStories(map, this.#allStories, this.#favoriteStoryIds);
+>>>>>>> d79ece6 (Simpan Perubahan)
       this.#view.setupNavigation();
 
       // notifikasi push untuk pengguna yang subscribe
@@ -80,6 +105,7 @@ export default class HomePresenter {
     } catch (error) {
       console.error('Gagal memuat data API:', error);
       try {
+<<<<<<< HEAD
         
         const cached = await getAllFavorites(); 
         if (cached && cached.length) {
@@ -88,6 +114,16 @@ export default class HomePresenter {
           
           
           this.#view.renderStories(map, this.#allStories, this.#favoriteStoryIds); 
+=======
+
+        const cached = await getAllFavorites();
+        if (cached && cached.length) {
+          this.#allStories = cached;
+          this.#favoriteStoryIds = new Set(cached.map(story => story.id));
+
+
+          this.#view.renderStories(map, this.#allStories, this.#favoriteStoryIds);
+>>>>>>> d79ece6 (Simpan Perubahan)
         }
       } catch (e) {
         console.error('Gagal memuat data dari IDB', e);
@@ -100,7 +136,11 @@ export default class HomePresenter {
     const story = this.#allStories.find((s) => s.id === id);
     if (!story) {
       console.error('Story tidak ditemukan:', id);
+<<<<<<< HEAD
       return false; 
+=======
+      return false;
+>>>>>>> d79ece6 (Simpan Perubahan)
     }
 
     const isCurrentlyLiked = this.#favoriteStoryIds.has(id);
@@ -110,17 +150,29 @@ export default class HomePresenter {
         // Proses Unlike
         await deleteFavorite(id);
         this.#favoriteStoryIds.delete(id);
+<<<<<<< HEAD
         return false; 
+=======
+        return false;
+>>>>>>> d79ece6 (Simpan Perubahan)
       } else {
         // Proses Like
         await addFavorite(story);
         this.#favoriteStoryIds.add(id);
+<<<<<<< HEAD
         return true; 
+=======
+        return true;
+>>>>>>> d79ece6 (Simpan Perubahan)
       }
     } catch (err) {
       console.error('Gagal memproses like/unlike:', err);
       Swal.fire('Error', 'Gagal menyimpan favorit, coba lagi.', 'error');
+<<<<<<< HEAD
       return isCurrentlyLiked; 
+=======
+      return isCurrentlyLiked;
+>>>>>>> d79ece6 (Simpan Perubahan)
     }
   }
 
@@ -129,13 +181,21 @@ export default class HomePresenter {
     if (reportsLS.length) {
       this.#view.renderLocalReports(map, reportsLS);
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> d79ece6 (Simpan Perubahan)
   }
 
   handleLogout() {
     this.#authModel.removeAccessToken();
     setTimeout(() => {
+<<<<<<< HEAD
       window.location.replace('#/login');
+=======
+      window.location.hash = '#/login';
+>>>>>>> d79ece6 (Simpan Perubahan)
     }, 0);
   }
 
@@ -178,6 +238,7 @@ export default class HomePresenter {
     );
   }
 
+<<<<<<< HEAD
   
 async #handleSubscribeToggle(button) {
   
@@ -187,11 +248,63 @@ async #handleSubscribeToggle(button) {
   try {
     const token = this.#authModel.getAccessToken();
     if (!token) {
+=======
+
+  async #handleSubscribeToggle(button) {
+
+    button.disabled = true;
+    button.innerHTML = `<i class="loader-button"></i> Memproses...`;
+
+    try {
+      const token = this.#authModel.getAccessToken();
+      if (!token) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Login Diperlukan',
+          text: 'Anda harus login untuk berlangganan berita.',
+        });
+        return;
+      }
+
+      let subscribedUsers = JSON.parse(localStorage.getItem('subscribedUsers')) || [];
+      const isSubscribed = subscribedUsers.includes(token);
+
+      if (isSubscribed) {
+        // Unsubscribe flow
+        await unsubscribeFromPush(); //
+        subscribedUsers = subscribedUsers.filter((t) => t !== token);
+        localStorage.setItem('subscribedUsers', JSON.stringify(subscribedUsers));
+
+        Swal.fire({
+          icon: 'info',
+          title: 'Berhenti Berlangganan',
+          text: 'Kamu tidak akan menerima notifikasi terbaru lagi.',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        // Subscribe flow
+        const granted = await requestNotificationPermission(); //
+        if (!granted) {
+          return;
+        }
+
+        const subscription = await subscribeForPush(); //
+        if (subscription) {
+          subscribedUsers.push(token);
+          localStorage.setItem('subscribedUsers', JSON.stringify(subscribedUsers));
+
+        }
+      }
+    } catch (error) {
+      console.error('Gagal toggle subscribe:', error);
+>>>>>>> d79ece6 (Simpan Perubahan)
       Swal.fire({
         icon: 'warning',
         title: 'Login Diperlukan',
         text: 'Anda harus login untuk berlangganan berita.',
       });
+<<<<<<< HEAD
       return; 
     }
 
@@ -247,6 +360,24 @@ async #handleSubscribeToggle(button) {
     } else {
       button.textContent = 'Subscribe';
       button.style.backgroundColor = '#28a745';
+=======
+    } finally {
+
+      button.disabled = false;
+
+
+      const token = this.#authModel.getAccessToken();
+      const subscribedUsers = JSON.parse(localStorage.getItem('subscribedUsers')) || [];
+      const isSubscribed = token && subscribedUsers.includes(token);
+
+      if (isSubscribed) {
+        button.textContent = 'Unsubscribe';
+        button.style.backgroundColor = '#dc3545';
+      } else {
+        button.textContent = 'Subscribe';
+        button.style.backgroundColor = '#28a745';
+      }
+>>>>>>> d79ece6 (Simpan Perubahan)
     }
   }
 }
@@ -273,18 +404,30 @@ async #handleSubscribeToggle(button) {
   // ==================================================
   #setupDetailNavigation() {
     document.addEventListener('click', (e) => {
+<<<<<<< HEAD
       
       const detailButton = e.target.closest('.btn-detail'); 
+=======
+
+      const detailButton = e.target.closest('.btn-detail');
+>>>>>>> d79ece6 (Simpan Perubahan)
       if (detailButton) {
         const id = detailButton.dataset.id;
         if (!id) return;
 
         if (document.startViewTransition) {
           document.startViewTransition(() => {
+<<<<<<< HEAD
             window.location.href = `#/reports/${id}`;
           });
         } else {
           window.location.href = `#/reports/${id}`;
+=======
+            window.location.href = `#/reports/${id}`; 
+          });
+        } else {
+          window.location.href = `#/reports/${id}`; 
+>>>>>>> d79ece6 (Simpan Perubahan)
         }
       }
     });
@@ -305,17 +448,17 @@ async #handleSubscribeToggle(button) {
 
   #handleSearch(term) {
     const lowerCaseTerm = term.toLowerCase().trim();
-    
+
     if (!lowerCaseTerm) {
       this.#view.renderStories(this.#map, this.#allStories);
       return;
     }
-    
+
     // Filter data berdasarkan nama atau deskripsi
     const filteredStories = this.#allStories.filter((story) => {
       const name = story.name || '';
       const description = story.description || '';
-      
+
       return (
         name.toLowerCase().includes(lowerCaseTerm) ||
         description.toLowerCase().includes(lowerCaseTerm)

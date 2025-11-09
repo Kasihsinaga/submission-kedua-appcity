@@ -201,7 +201,7 @@ export default class AddReportPresenter {
           text: 'Laporanmu sudah terkirim ke server.',
           confirmButtonText: 'OK',
         });
-        window.location.hash = '/home';
+        window.location.hash = '#/home';
       } else {
         Swal.fire({
           icon: 'error',

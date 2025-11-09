@@ -50,7 +50,8 @@ export default class AddReportPage {
               <button type="button" id="capturePhotoBtn" disabled>📸 Ambil Foto</button>
               <button type="button" id="closeCameraBtn" style="display:none;">❌ Tutup Kamera</button>
             </div>
- 
+
+            <label for="img">Image</label>
             <input type="file" id="imageInput" accept="image/*" style="margin-top:10px;" />
           </div>
  
