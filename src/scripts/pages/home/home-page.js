@@ -17,7 +17,9 @@ export default class HomePage {
         <h2 style="margin-top:20px">Daftar Laporan</h2>
         
         <div class="search-container" style="margin-bottom: 15px;">
-          <input type="search" id="searchBar" placeholder="Cari laporan berdasarkan nama atau deskripsi..." 
+        <label>Cari Laporan</label>
+          <input type="search" id="searchBar" alt="cari"
+          placeholder="Cari laporan berdasarkan nama atau deskripsi..." 
                  style="width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px;">
         </div>
         <div id="reportList"></div>
@@ -116,48 +118,64 @@ export default class HomePage {
     });
   }
 
-renderStories(map, stories) {
-  const reportList = document.getElementById('reportList');
+  renderStories(map, stories, favoriteStoryIds = new Set()) {
+    const reportList = document.getElementById('reportList');
 
-  console.log("📦 Semua data stories:", stories);
+    if (!stories || stories.length === 0) {
+      reportList.innerHTML = '<p>Tidak ada laporan ditemukan.</p>';
+      return;
+    }
 
-  if (!stories || stories.length === 0) {
-    reportList.innerHTML = '<p>Tidak ada laporan ditemukan.</p>';
-    return;
-  }
+    reportList.innerHTML = stories
+      .slice(0, 20)
+      .map((s) => {
+        const isLiked = favoriteStoryIds.has(s.id); 
+        const likeButtonColor = isLiked ? '#dc3545' : '#aaaaaa'; 
 
-  reportList.innerHTML = stories
-    .slice(0, 20)
-    .map((s) => {
-      console.log("🧩 Story item:", s);
-
-      return `
-        <div class="report-card" style="view-transition-name: card-${s.id};">
-          <div class="report-card-content">
-            <h3>${s.name}</h3>
-            <p><b>ID:</b> ${s.id}</p>
-            <img src="${s.photoUrl}" alt="${s.name}" />
-            <p class="story-date">Tanggal: ${this.#presenter.formatDate(s.createdAt)}</p>
-            <p>${s.description || 'Tidak ada deskripsi'}</p>
-            <button class="btn-detail" data-id="${s.id}" style="
-              background-color: #007bff;
-              color: white;
-              border: none;
-              border-radius: 6px;
-              padding: 6px 12px;
-              margin-top: 8px;
-              cursor: pointer;
-              transition: background-color 0.3s ease;
-            ">Selengkapnya</button>
+        return `
+          <div class="report-card" style="view-transition-name: card-${s.id};">
+            <div class="report-card-content">
+              <h3>${s.name}</h3>
+              <p><b>ID:</b> ${s.id}</p>
+              <img src="${s.photoUrl}" alt="${s.name}" />
+              <p class="story-date">Tanggal: ${this.#presenter.formatDate(s.createdAt)}</p>
+              <p>${s.description || 'Tidak ada deskripsi'}</p>
+              
+              <div class="report-card-buttons" style="display: flex; gap: 8px; margin-top: 8px; align-items: center;">
+                <button class="btn-detail" data-id="${s.id}" style="
+                  background-color: #007bff;
+                  color: white;
+                  border: none;
+                  border-radius: 6px;
+                  padding: 6px 12px;
+                  cursor: pointer;
+                  flex-grow: 1;
+                ">Selengkapnya</button>
+                
+                <button 
+                  class="btn-like" 
+                  data-id="${s.id}" 
+                  aria-label="${isLiked ? 'Unlike this story' : 'Like this story'}"
+                  style="
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    padding: 5px;
+                    font-size: 1.5rem;
+                    color: ${likeButtonColor};
+                ">
+                  ♥
+                </button>
+              </div>
+              
+            </div>
           </div>
-        </div>
-      `;
-    })
-    .join('');
+        `;
+      })
+      .join('');
 
-  // 💡 Tambahkan style grid agar daftar rapi
-  const style = document.createElement('style');
-  style.textContent = `
+    const style = document.createElement('style');
+    style.textContent = `
     #reportList {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -187,35 +205,70 @@ renderStories(map, stories) {
       background-color: #0056b3;
     }
   `;
-  document.head.appendChild(style);
+    document.head.appendChild(style);
 
-  // 🗺️ Tambahkan marker acak di peta (sementara)
-  stories.slice(0, 10).forEach((story) => {
-    const lat = -6.2 + Math.random();
-    const lng = 106.8 + Math.random();
-    L.marker([lat, lng])
-      .addTo(map)
-      .bindPopup(`<b>${story.name}</b><br>${story.description || 'Tidak ada deskripsi'}`);
-  });
+    stories.slice(0, 10).forEach((story) => {
+      const lat = -6.2 + Math.random();
+      const lng = 106.8 + Math.random();
+      L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup(`<b>${story.name}</b><br>${story.description || 'Tidak ada deskripsi'}`);
+    });
 
-  // 🎯 Event listener tombol "Selengkapnya"
-  const buttons = document.querySelectorAll('.btn-detail');
-  buttons.forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      const id = e.target.dataset.id;
-      console.log('🆔 ID yang diklik:', id);
+    // 🎯 Event listener tombol "Selengkapnya"
+    const buttons = document.querySelectorAll('.btn-detail');
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const id = e.target.dataset.id;
+        console.log('🆔 ID yang diklik:', id);
 
-      // Transisi SPA
-      if (document.startViewTransition) {
-        document.startViewTransition(() => {
+        // Transisi SPA
+        if (document.startViewTransition) {
+          document.startViewTransition(() => {
+            window.location.hash = `#/reports/${id}`;
+          });
+        } else {
           window.location.hash = `#/reports/${id}`;
-        });
-      } else {
-        window.location.hash = `#/reports/${id}`;
+        }
+      });
+    });
+
+
+  }
+  setupLikeButtonListener(handler) {
+    const reportList = document.getElementById('reportList');
+    reportList.addEventListener('click', async (event) => {
+      const likeButton = event.target.closest('.btn-like');
+      if (!likeButton) return;
+
+      const id = likeButton.dataset.id;
+      const isCurrentlyLiked = likeButton.style.color.includes('rgb(220, 53, 69)'); 
+
+      // Tampilkan loading
+      likeButton.disabled = true;
+      likeButton.innerHTML = '<i class="loader-button" style="border-top-color: #333; width: 1em; height: 1em;"></i>';
+
+      try {
+        const newLikedStatus = await handler(id);
+
+        // Update UI tombol
+        if (newLikedStatus) {
+          likeButton.style.color = '#dc3545'; 
+          likeButton.setAttribute('aria-label', 'Unlike this story');
+        } else {
+          likeButton.style.color = '#aaaaaa';
+          likeButton.setAttribute('aria-label', 'Like this story');
+        }
+      } catch (error) {
+        // Jika gagal, kembalikan ke state semula
+        likeButton.style.color = isCurrentlyLiked ? '#dc3545' : '#aaaaaa';
+      } finally {
+        // Kembalikan ikon hati dan aktifkan tombol
+        likeButton.disabled = false;
+        likeButton.innerHTML = '♥';
       }
     });
-  });
-}
+  }
 
 
   renderLocalReports(map, reports) {
@@ -226,7 +279,7 @@ renderStories(map, stories) {
           <div class="
           " style="border: 1px solid #ddd; margin: 10px; padding: 10px;">
             <h3>${r.title}</h3>
-            <img src="${r.image}" width="200" />
+            <img src="${r.image}" width="200" alt="${r.title}"/>
             <p>${r.description}</p>
             <button class="detail-btn" data-id="${r.id}">Selengkapnya</button>
           </div>

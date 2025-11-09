@@ -35,7 +35,8 @@ export default class LoginPage {
   }
 
   async afterRender() {
-    // Inisialisasi presenter
+    
+    // Inisialisasi presenter (hanya jika tidak ada token)
     this.#presenter = new LoginPresenter({
       view: this,
       model: CityCareAPI,
@@ -73,7 +74,7 @@ export default class LoginPage {
 
   loginSuccessfully(message) {
     console.log('Login success:', message);
-    window.location.hash = '/home';
+    window.location.hash = '#/home';
   }
 
   loginFailed(message) {

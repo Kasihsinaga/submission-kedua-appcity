@@ -1,10 +1,6 @@
 const CACHE_NAME = 'citycare-cache-v1';
 const PRECACHE_URLS = [
-  '/',
-  '/index.html',
-  '/styles/styles.css',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
+
 ];
 
 self.addEventListener('install', (event) => {
@@ -28,8 +24,8 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  
-  if (url.pathname.includes('/v1') || url.pathname.includes('/stories')) {
+
+  if ((url.pathname.includes('/v1') || url.pathname.includes('/stories')) && request.method === 'GET') {
     event.respondWith(
       fetch(request).catch(() => {
         return new Response(
@@ -38,12 +34,22 @@ self.addEventListener('fetch', (event) => {
         );
       })
     );
-    return; 
+    return;
   }
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      caches.match('/index.html').then((cached) => cached || fetch(request).catch(() => cached))
+      (async () => {
+        try {
+          // 1. Coba ambil dari jaringan (ini akan mengizinkan proxy webpack bekerja)
+          const networkResponse = await fetch(request);
+          return networkResponse;
+        } catch (error) {
+          // 2. Jika jaringan gagal (offline), baru sajikan 'app shell' dari cache
+          console.log('Network request failed, serving app shell from cache.');
+          return await caches.match('index.html');
+        }
+      })()
     );
     return;
   }
@@ -52,15 +58,19 @@ self.addEventListener('fetch', (event) => {
     caches.match(request).then((cached) => {
       if (cached) return cached;
 
+      // ...
       return fetch(request)
         .then((res) => {
-          if (!res || res.status !== 200 || request.method !== 'GET') return res;
-          
+          // Cek apakah request valid, metode GET, dan URL-nya dimulai dengan 'http'
+          if (!res || res.status !== 200 || request.method !== 'GET' || !request.url.startsWith('http')) {
+            return res;
+          }
+
           const resClone = res.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, resClone));
           return res;
         })
-        .catch(() => new Response(null, { status: 504 })); 
+      // ...
     })
   );
 });
@@ -70,7 +80,7 @@ self.addEventListener('push', (event) => {
   let payload = {
     title: 'Notifikasi',
     body: 'Ada notifikasi baru.',
-    icon: '/icons/icon-192x192.png',
+    icon: '/images/map.png',
     url: '/',
     tag: 'citycare',
     actions: [],
@@ -90,7 +100,7 @@ self.addEventListener('push', (event) => {
     } catch (e) {
       try {
         payload.body = event.data.text();
-      } catch (_) {}
+      } catch (_) { }
     }
   }
 
@@ -115,7 +125,7 @@ self.addEventListener('notificationclick', (event) => {
           return client.focus();
         }
       }
- 
+
       if (clients.openWindow) return clients.openWindow(urlToOpen);
     })
   );
@@ -131,7 +141,7 @@ self.addEventListener('sync', (event) => {
 // Outbox sync logic (reads IndexedDB and tries to POST)
 async function syncOutbox() {
   try {
-    const db = await openOutboxDB(); 
+    const db = await openOutboxDB();
     const tx = db.transaction('outbox', 'readwrite');
     const store = tx.objectStore('outbox');
     const allReq = store.getAll();

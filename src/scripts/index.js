@@ -1,53 +1,77 @@
 import '../styles/styles.css';
 import App from './pages/app';
 import mapLogo from '../public/images/map.png';
+import { getAccessToken } from './utils/auth'; 
 import { registerServiceWorker } from './utils';
-import { registerServiceWorker as registerHelperSW } from './utils'; 
+
 
 let deferredPrompt = null;
 
+// Inisialisasi App di scope atas
+const app = new App({
+  content: document.querySelector('#main-content'),
+  drawerButton: document.querySelector('#drawer-button'),
+  navigationDrawer: document.querySelector('#navigation-drawer'),
+});
+
+
+const handleNavigation = async () => {
+  const token = getAccessToken();
+  let path = window.location.hash;
+
+  // Normalisasi path jika kosong
+  if (path === '') path = '#/';
+
+  
+  const protectedRoutes = ['#/home', '#/favorites', '#/add-report', '#/reports/:id'];
+  const authRoutes = ['#/login', '#/register'];
+  const rootPath = '#/';
+
+  // Tentukan rute yang dituju (menghandle rute dinamis seperti /reports/:id)
+  const targetRoute = path.startsWith('#/reports/') ? '#/reports/:id' : path;
+
+  if (token) {
+    
+    if (authRoutes.includes(targetRoute)) {
+      
+      window.location.hash = '#/home'; 
+      return; 
+    }
+    if (targetRoute === rootPath) {
+      
+      window.location.hash = '#/home'; 
+      return; 
+    }
+  } else {
+    
+    if (protectedRoutes.includes(targetRoute) || targetRoute === rootPath) {
+      window.location.hash = '#/login';
+      return; 
+    }
+  }
+  
+  
+  const mainContent = document.querySelector('#main-content');
+  if (mainContent) {
+    mainContent.classList.remove('fade-in');
+    mainContent.classList.add('fade-out');
+    await new Promise((r) => setTimeout(r, 400));
+  }
+
+  await app.renderPage(); // 'renderPage' akan merender hash yang valid
+
+  if (mainContent) {
+    mainContent.classList.remove('fade-out');
+    mainContent.classList.add('fade-in');
+  }
+};
+
+
+// === EVENT LISTENER UTAMA ===
 document.addEventListener('DOMContentLoaded', async () => {
   const logo = document.querySelector('.logo');
   if (logo) logo.src = mapLogo;
-
-  const app = new App({
-    content: document.querySelector('#main-content'),
-    drawerButton: document.querySelector('#drawer-button'),
-    navigationDrawer: document.querySelector('#navigation-drawer'),
-  });
-
-  // page transition helper
-  const transition = async () => {
-    const mainContent = document.querySelector('#main-content');
-    if (mainContent) {
-      mainContent.classList.remove('fade-in');
-      mainContent.classList.add('fade-out');
-      await new Promise((r) => setTimeout(r, 400));
-    }
-
-    await app.renderPage();
-
-    if (mainContent) {
-      mainContent.classList.remove('fade-out');
-      mainContent.classList.add('fade-in');
-    }
-  };
-
-  // default to login
-  if (window.location.hash === '' || window.location.hash === '#/') {
-    window.location.hash = '#/login';
-  }
-
-  // register service worker 
-  if ('serviceWorker' in navigator) {
-    try {
-      await navigator.serviceWorker.register('/sw.js');
-      console.log('Service worker registered at /sw.js');
-    } catch (err) {
-      console.warn('Service worker register failed', err);
-    }
-  }
-
+  
   // handle beforeinstallprompt for PWA
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
@@ -73,18 +97,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  await transition();
-
-  window.addEventListener('hashchange', transition);
-
+  // Daftarkan Service Worker
   try {
     if (typeof registerServiceWorker === 'function') {
       await registerServiceWorker();
     }
   } catch (e) {
+    console.warn('Gagal mendaftarkan Service Worker:', e);
   }
 
-  window.addEventListener('hashchange', async () => {
-    await app.renderPage();
-  });
+  // Panggil handleNavigation saat pertama kali memuat halaman
+  await handleNavigation();
+
+ 
+  window.addEventListener('hashchange', handleNavigation);
 });

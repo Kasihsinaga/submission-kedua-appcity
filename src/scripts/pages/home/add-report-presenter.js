@@ -1,29 +1,29 @@
 import Swal from 'sweetalert2';
 import { getAccessToken } from '../../utils/auth';
- 
+
 export default class AddReportPresenter {
   #model;
   #map;
   #capturedImageBlob = null;
   #view = {};
- 
+
   constructor({ model }) {
     this.#model = model;
   }
- 
+
   initMap() {
-    this.#map = L.map('map').setView([3.5952, 98.6722], 13); // Default: Medan
+    this.#map = L.map('map').setView([3.5952, 98.6722], 13); 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(this.#map);
   }
- 
+
   async handleSearchLocation(query) {
     if (!query) return;
- 
+
     const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`);
     const results = await response.json();
- 
+
     if (results.length > 0) {
       const { lat, lon } = results[0];
       this.#map.setView([lat, lon], 14);
@@ -36,12 +36,12 @@ export default class AddReportPresenter {
       });
     }
   }
- 
+
   // ==== KAMERA ====
   initCamera({ videoElement, photoPreview, openBtn, captureBtn, closeBtn }) {
     this.#view = { videoElement, photoPreview, openBtn, captureBtn, closeBtn };
     let stream = null;
- 
+
     // Buka kamera
     openBtn.addEventListener('click', async () => {
       try {
@@ -59,7 +59,7 @@ export default class AddReportPresenter {
         });
       }
     });
- 
+
     // Ambil foto dari stream
     captureBtn.addEventListener('click', () => {
       const canvas = document.createElement('canvas');
@@ -67,13 +67,13 @@ export default class AddReportPresenter {
       canvas.height = videoElement.videoHeight;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
- 
+
       canvas.toBlob((blob) => {
         this.#capturedImageBlob = blob;
         const imageUrl = URL.createObjectURL(blob);
         photoPreview.src = imageUrl;
         photoPreview.style.display = 'block';
- 
+
         Swal.fire({
           icon: 'success',
           title: 'Foto Berhasil Diambil!',
@@ -83,7 +83,7 @@ export default class AddReportPresenter {
         });
       }, 'image/jpeg');
     });
- 
+
     // Tutup kamera
     closeBtn.addEventListener('click', () => {
       if (stream) {
@@ -94,7 +94,7 @@ export default class AddReportPresenter {
       captureBtn.disabled = true;
       closeBtn.style.display = 'none';
       openBtn.disabled = false;
- 
+
       Swal.fire({
         icon: 'info',
         title: 'Kamera Ditutup',
@@ -104,29 +104,29 @@ export default class AddReportPresenter {
       });
     });
   }
- 
+
   getCapturedImage() {
     return this.#capturedImageBlob;
   }
 
   #showLocalNotification(title, description) {
-    // 1. Dapatkan token pengguna saat ini
+    // Dapatkan token pengguna saat ini
     const token = getAccessToken();
-    if (!token) return; // Jika tidak login, jangan tampilkan
+    if (!token) return; 
 
-    // 2. Cek status 'subscribe' dari localStorage (yang diatur home-presenter)
+    // Cek status 'subscribe' dari localStorage (yang diatur home-presenter)
     const subscribedUsers = JSON.parse(localStorage.getItem('subscribedUsers')) || [];
     const isSubscribed = subscribedUsers.includes(token);
 
-    // 3. Tampilkan notifikasi HANYA jika user subscribe DAN izin notifikasi diizinkan
+    // Tampilkan notifikasi HANYA jika user subscribe DAN izin notifikasi diizinkan
     if (isSubscribed && Notification.permission === 'granted') {
       try {
         const options = {
           body: description,
-          icon: '/icons/icon-192x192.png',
-          tag: 'laporan-sukses', // 'tag' agar notifikasi tidak menumpuk
+          icon: '/images/map.png',
+          tag: 'laporan-sukses',
         };
-        new Notification(title, options); // 'new Notification' adalah Notifikasi Lokal
+        new Notification(title, options); 
       } catch (e) {
         console.warn('Gagal menampilkan Notifikasi Lokal:', e);
       }
@@ -134,7 +134,7 @@ export default class AddReportPresenter {
       console.log('User subscribed, tapi izin notifikasi (Notification.permission) belum "granted".');
     }
   }
- 
+
   async handleSubmitReport(data) {
     if (!data.title || !data.severity || !data.imageInput) {
       Swal.fire({
@@ -144,11 +144,11 @@ export default class AddReportPresenter {
       });
       return;
     }
- 
+
     const latlng = this.#map.getCenter();
     const description = data.description || 'Tidak ada deskripsi';
     const postDescription = `[${data.title.toUpperCase()} - ${data.severity.toUpperCase()}] ${description}`;
- 
+
     // Spinner loading overlay
     const loadingOverlay = document.createElement('div');
     loadingOverlay.style.position = 'fixed';
@@ -175,11 +175,11 @@ export default class AddReportPresenter {
       <p style="margin-top:15px;">Mengirim laporan...</p>
     `;
     document.body.appendChild(loadingOverlay);
- 
+
     const style = document.createElement('style');
     style.textContent = `@keyframes spin { to { transform: rotate(360deg); } }`;
     document.head.appendChild(style);
- 
+
     try {
       const response = await this.#model.postStory({
         description: postDescription,
@@ -187,13 +187,13 @@ export default class AddReportPresenter {
         lat: latlng.lat,
         lon: latlng.lng,
       });
- 
+
       loadingOverlay.remove();
- 
+
       if (!response.error) {
         this.#showLocalNotification(
           `Laporan Baru: ${data.title}`,
-          description 
+          description
         );
         await Swal.fire({
           icon: 'success',
@@ -201,7 +201,7 @@ export default class AddReportPresenter {
           text: 'Laporanmu sudah terkirim ke server.',
           confirmButtonText: 'OK',
         });
-        window.location.hash = '/home';
+        window.location.hash = '#/home';
       } else {
         Swal.fire({
           icon: 'error',
