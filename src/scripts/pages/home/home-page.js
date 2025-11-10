@@ -135,7 +135,7 @@ export default class HomePage {
         return `
           <div class="report-card" style="view-transition-name: card-${s.id};">
             <div class="report-card-content">
-              <h4>${s.name}</h4>
+              <h3>${s.name}</h3>
               <p><b>ID:</b> ${s.id}</p>
               <img src="${s.photoUrl}" alt="${s.name}" />
               <p class="story-date">Tanggal: ${this.#presenter.formatDate(s.createdAt)}</p>
